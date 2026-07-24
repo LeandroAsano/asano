@@ -10,15 +10,23 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { HabitItem } from "../components/HabitItem";
-import { loadHabits, saveHabits } from "../storage/habitsStorage";
-import { Habit } from "../types/habit";
+import { HabitItem } from "../src/components/HabitItem";
+import { loadHabits, saveHabits } from "../src/storage/habitsStorage";
+import { Habit } from "../src/types/habit";
+import { colors, fontSize, radius, spacing } from "../src/theme/tokens";
 
 function todayKey(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export function HomeScreen() {
+/**
+ * Pantalla de inicio (ruta "/"). Muestra los hábitos de hoy y permite
+ * agregarlos, marcarlos y borrarlos.
+ *
+ * NOTA: sigue usando AsyncStorage. Reemplazar por SQLite + Drizzle y el
+ * modelo de datos completo (check-in, acción mínima, ajustes) es el Bloque 2.
+ */
+export default function HomeScreen() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [newHabitName, setNewHabitName] = useState("");
   const [loaded, setLoaded] = useState(false);
@@ -91,7 +99,7 @@ export function HomeScreen() {
         <TextInput
           style={styles.input}
           placeholder="Nuevo hábito..."
-          placeholderTextColor="#888"
+          placeholderTextColor={colors.textMuted}
           value={newHabitName}
           onChangeText={setNewHabitName}
           onSubmitEditing={addHabit}
@@ -108,43 +116,45 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#121212",
+    backgroundColor: colors.background,
   },
   title: {
-    fontSize: 22,
+    fontSize: fontSize.xl,
     fontWeight: "600",
-    color: "#fff",
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    color: colors.textPrimary,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   empty: {
-    color: "#888",
+    color: colors.textSecondary,
     textAlign: "center",
-    marginTop: 32,
+    marginTop: spacing.xl,
   },
   inputRow: {
     flexDirection: "row",
-    padding: 12,
+    padding: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: "#333",
+    borderTopColor: colors.border,
   },
   input: {
     flex: 1,
-    backgroundColor: "#1e1e1e",
-    color: "#fff",
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    marginRight: 8,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm + 2,
+    marginRight: spacing.sm,
   },
   addButton: {
-    backgroundColor: "#4caf50",
-    borderRadius: 8,
-    paddingHorizontal: 16,
+    backgroundColor: colors.primary,
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.md,
     justifyContent: "center",
   },
   addButtonText: {
-    color: "#fff",
+    color: colors.onPrimary,
     fontWeight: "600",
   },
 });

@@ -1,6 +1,7 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 import { Habit } from "../types/habit";
+import { colors, fontSize, radius, spacing } from "../theme/tokens";
 
 type Props = {
   habit: Habit;
@@ -11,7 +12,7 @@ type Props = {
 
 export function HabitItem({ habit, doneToday, onToggleToday, onDelete }: Props) {
   return (
-    <View style={styles.row}>
+    <View style={[styles.row, doneToday && styles.rowDone]}>
       <Pressable
         style={[styles.checkbox, doneToday && styles.checkboxDone]}
         onPress={() => onToggleToday(habit.id)}
@@ -30,41 +31,45 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+    paddingVertical: spacing.md - 4,
+    paddingHorizontal: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#333",
+    borderBottomColor: colors.border,
+  },
+  rowDone: {
+    backgroundColor: colors.successSurface,
   },
   checkbox: {
     width: 24,
     height: 24,
-    borderRadius: 6,
+    borderRadius: radius.sm,
     borderWidth: 2,
-    borderColor: "#888",
+    borderColor: colors.textMuted,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: spacing.md - 4,
   },
   checkboxDone: {
-    backgroundColor: "#4caf50",
-    borderColor: "#4caf50",
+    backgroundColor: colors.success,
+    borderColor: colors.success,
   },
   checkmark: {
-    color: "#fff",
-    fontSize: 14,
+    color: colors.onPrimary,
+    fontSize: fontSize.sm,
     fontWeight: "bold",
   },
   name: {
     flex: 1,
-    fontSize: 16,
+    fontSize: fontSize.md,
+    color: colors.textPrimary,
   },
   nameDone: {
     textDecorationLine: "line-through",
-    color: "#888",
+    color: colors.textSecondary,
   },
   delete: {
-    color: "#888",
-    fontSize: 16,
-    paddingHorizontal: 4,
+    color: colors.textMuted,
+    fontSize: fontSize.md,
+    paddingHorizontal: spacing.xs,
   },
 });
