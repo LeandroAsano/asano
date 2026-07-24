@@ -1,6 +1,6 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { colors, fontSize, radius, spacing } from "../theme/tokens";
+import { colors, fonts, fontSize, radius, spacing } from "../theme/tokens";
 
 type Props = {
   habit: { id: string; name: string };
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: fontSize.md,
     color: colors.textPrimary,
+    fontFamily: fonts.body,
   },
   nameDone: {
     textDecorationLine: "line-through",
