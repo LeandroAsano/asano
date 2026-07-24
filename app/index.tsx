@@ -1,5 +1,7 @@
+import { router } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
+  ActivityIndicator,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -18,27 +20,47 @@ import {
   toggleToday,
   type HabitForToday,
 } from "../src/db/habitsRepo";
+import { hasProfile } from "../src/db/profileRepo";
 import { colors, fontSize, radius, spacing } from "../src/theme/tokens";
 
 /**
  * Pantalla de inicio (ruta "/"). Muestra los hábitos de hoy y permite
  * agregarlos, marcarlos y borrarlos.
  *
- * Los datos ahora viven en SQLite (vía el repositorio habitsRepo). La
- * pantalla no toca la base directamente: pide todo al repositorio y, tras
- * cada cambio, vuelve a leer con refresh().
+ * Antes de mostrar nada, chequea si ya existe un perfil (onboarding
+ * completado). Si no existe, redirige a /onboarding con `replace` (no
+ * `push`) para que "atrás" no pueda volver a esta pantalla a medio cargar.
+ *
+ * Los datos viven en SQLite (vía los repositorios). La pantalla no toca
+ * la base directamente: pide todo al repositorio y, tras cada cambio,
+ * vuelve a leer con refresh().
  */
 export default function HomeScreen() {
   const [items, setItems] = useState<HabitForToday[]>([]);
   const [newHabitName, setNewHabitName] = useState("");
+  const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
     setItems(await listHabitsForToday());
   }, []);
 
   useEffect(() => {
-    refresh();
+    hasProfile().then((exists) => {
+      if (!exists) {
+        router.replace("/onboarding");
+        return;
+      }
+      refresh().then(() => setReady(true));
+    });
   }, [refresh]);
+
+  if (!ready) {
+    return (
+      <SafeAreaView style={styles.center} edges={["top", "bottom"]}>
+        <ActivityIndicator color={colors.primary} />
+      </SafeAreaView>
+    );
+  }
 
   async function onAdd() {
     const name = newHabitName.trim();
@@ -100,6 +122,12 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
+  },
+  center: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.background,
   },
   title: {

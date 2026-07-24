@@ -4,9 +4,9 @@ import { sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
  * Schema de la base de datos de ASANO (SQLite vía Drizzle).
  *
  * Es el subconjunto del modelo de datos (doc 03) que la app necesita hoy.
- * En bloques siguientes se agregan: habit_schedules, adjustments, profile,
- * programs, etc. Drizzle permite sumar tablas con migraciones incrementales,
- * así que no hace falta definir todo de una.
+ * En bloques siguientes se agregan: habit_schedules, adjustments, programs,
+ * etc. Drizzle permite sumar tablas con migraciones incrementales, así que
+ * no hace falta definir todo de una.
  */
 
 // ── Tabla: habits ─────────────────────────────────────────────────
@@ -47,9 +47,32 @@ export const habitLogs = sqliteTable(
   (t) => [uniqueIndex("habit_date_unique").on(t.habitId, t.date)]
 );
 
+// ── Tabla: profile ────────────────────────────────────────────────
+// El contexto capturado en el onboarding (doc 02 §3 / doc 03 PROFILE).
+// Fila única: en el MVP hay una sola persona por teléfono (local-first,
+// sin cuentas), así que se guarda con un id fijo ("local") en vez de
+// vincularla a un usuario. Si más adelante se suma auth, se agrega
+// userId y esto deja de ser singleton.
+export const profile = sqliteTable("profile", {
+  id: text("id").primaryKey().default("local"),
+  goal: text("goal"),
+  strugglingHabit: text("struggling_habit"),
+  timeBudget: text("time_budget"),
+  preferredMoment: text("preferred_moment"),
+  commonBlocker: text("common_blocker"),
+  // sereno | directo | analitico | flexible — define el tono de ASA.
+  accompanimentStyle: text("accompaniment_style"),
+  completedAt: text("completed_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+});
+
 // Tipos inferidos automáticamente del schema — se usan en toda la app en
 // lugar del viejo `src/types/habit.ts`.
 export type Habit = typeof habits.$inferSelect;
 export type NewHabit = typeof habits.$inferInsert;
 export type HabitLog = typeof habitLogs.$inferSelect;
 export type HabitLogStatus = "completed" | "minimal" | "missed";
+export type Profile = typeof profile.$inferSelect;
+export type NewProfile = typeof profile.$inferInsert;
+export type AccompanimentStyle = "sereno" | "directo" | "analitico" | "flexible";
