@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -11,81 +11,65 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HabitItem } from "../src/components/HabitItem";
-import { loadHabits, saveHabits } from "../src/storage/habitsStorage";
-import { Habit } from "../src/types/habit";
+import {
+  addHabit,
+  deleteHabit,
+  listHabitsForToday,
+  toggleToday,
+  type HabitForToday,
+} from "../src/db/habitsRepo";
 import { colors, fontSize, radius, spacing } from "../src/theme/tokens";
-
-function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
-}
 
 /**
  * Pantalla de inicio (ruta "/"). Muestra los hábitos de hoy y permite
  * agregarlos, marcarlos y borrarlos.
  *
- * NOTA: sigue usando AsyncStorage. Reemplazar por SQLite + Drizzle y el
- * modelo de datos completo (check-in, acción mínima, ajustes) es el Bloque 2.
+ * Los datos ahora viven en SQLite (vía el repositorio habitsRepo). La
+ * pantalla no toca la base directamente: pide todo al repositorio y, tras
+ * cada cambio, vuelve a leer con refresh().
  */
 export default function HomeScreen() {
-  const [habits, setHabits] = useState<Habit[]>([]);
+  const [items, setItems] = useState<HabitForToday[]>([]);
   const [newHabitName, setNewHabitName] = useState("");
-  const [loaded, setLoaded] = useState(false);
 
-  useEffect(() => {
-    loadHabits().then((h) => {
-      setHabits(h);
-      setLoaded(true);
-    });
+  const refresh = useCallback(async () => {
+    setItems(await listHabitsForToday());
   }, []);
 
   useEffect(() => {
-    if (loaded) saveHabits(habits);
-  }, [habits, loaded]);
+    refresh();
+  }, [refresh]);
 
-  function addHabit() {
+  async function onAdd() {
     const name = newHabitName.trim();
     if (!name) return;
-    setHabits((prev) => [
-      ...prev,
-      { id: Date.now().toString(), name, createdAt: todayKey(), completedDates: [] },
-    ]);
     setNewHabitName("");
+    await addHabit(name);
+    await refresh();
   }
 
-  function toggleToday(id: string) {
-    const today = todayKey();
-    setHabits((prev) =>
-      prev.map((h) =>
-        h.id === id
-          ? {
-              ...h,
-              completedDates: h.completedDates.includes(today)
-                ? h.completedDates.filter((d) => d !== today)
-                : [...h.completedDates, today],
-            }
-          : h
-      )
-    );
+  async function onToggle(id: string) {
+    await toggleToday(id);
+    await refresh();
   }
 
-  function deleteHabit(id: string) {
-    setHabits((prev) => prev.filter((h) => h.id !== id));
+  async function onDelete(id: string) {
+    await deleteHabit(id);
+    await refresh();
   }
-
-  const today = todayKey();
 
   return (
     <SafeAreaView style={styles.container} edges={["top", "bottom"]}>
       <Text style={styles.title}>Hábitos de hoy</Text>
       <FlatList
-        data={habits}
+        data={items}
         keyExtractor={(h) => h.id}
         renderItem={({ item }) => (
           <HabitItem
             habit={item}
-            doneToday={item.completedDates.includes(today)}
-            onToggleToday={toggleToday}
-            onDelete={deleteHabit}
+            doneToday={item.doneToday}
+            onToggleToday={onToggle}
+            onDelete={onDelete}
           />
         )}
         ListEmptyComponent={
@@ -102,10 +86,10 @@ export default function HomeScreen() {
           placeholderTextColor={colors.textMuted}
           value={newHabitName}
           onChangeText={setNewHabitName}
-          onSubmitEditing={addHabit}
+          onSubmitEditing={onAdd}
           returnKeyType="done"
         />
-        <Pressable style={styles.addButton} onPress={addHabit}>
+        <Pressable style={styles.addButton} onPress={onAdd}>
           <Text style={styles.addButtonText}>Agregar</Text>
         </Pressable>
       </KeyboardAvoidingView>

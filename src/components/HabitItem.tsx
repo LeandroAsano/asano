@@ -1,10 +1,9 @@
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Habit } from "../types/habit";
 import { colors, fontSize, radius, spacing } from "../theme/tokens";
 
 type Props = {
-  habit: Habit;
+  habit: { id: string; name: string };
   doneToday: boolean;
   onToggleToday: (id: string) => void;
   onDelete: (id: string) => void;
