@@ -21,7 +21,7 @@ import {
   type HabitForToday,
 } from "../src/db/habitsRepo";
 import { hasProfile } from "../src/db/profileRepo";
-import { colors, fontSize, radius, spacing } from "../src/theme/tokens";
+import { colors, fonts, fontSize, radius, spacing } from "../src/theme/tokens";
 
 /**
  * Pantalla de inicio (ruta "/"). Muestra los hábitos de hoy y permite
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSize.xl,
-    fontWeight: "600",
+    fontFamily: fonts.heading,
     color: colors.textPrimary,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
@@ -141,6 +141,7 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     textAlign: "center",
     marginTop: spacing.xl,
+    fontFamily: fonts.body,
   },
   inputRow: {
     flexDirection: "row",
@@ -158,6 +159,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm + 2,
     marginRight: spacing.sm,
+    fontFamily: fonts.body,
   },
   addButton: {
     backgroundColor: colors.primary,
@@ -167,6 +169,6 @@ const styles = StyleSheet.create({
   },
   addButtonText: {
     color: colors.onPrimary,
-    fontWeight: "600",
+    fontFamily: fonts.bodySemi,
   },
 });

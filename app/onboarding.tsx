@@ -10,7 +10,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { saveProfile } from "../src/db/profileRepo";
 import { ONBOARDING_QUESTIONS } from "../src/features/onboarding/questions";
-import { colors, fontSize, radius, spacing } from "../src/theme/tokens";
+import { colors, fonts, fontSize, radius, spacing } from "../src/theme/tokens";
 
 /**
  * Onboarding: 6 preguntas, una por pantalla, con barra de progreso.
@@ -120,6 +120,7 @@ const styles = StyleSheet.create({
   back: {
     color: colors.primary,
     fontSize: fontSize.md,
+    fontFamily: fonts.bodyMedium,
   },
   backDisabled: {
     opacity: 0,
@@ -127,6 +128,7 @@ const styles = StyleSheet.create({
   stepCounter: {
     color: colors.textMuted,
     fontSize: fontSize.sm,
+    fontFamily: fonts.body,
   },
   progressTrack: {
     height: 4,
@@ -146,7 +148,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: fontSize.xl,
-    fontWeight: "700",
+    fontFamily: fonts.heading,
     color: colors.textPrimary,
     marginBottom: spacing.xs,
   },
@@ -154,6 +156,7 @@ const styles = StyleSheet.create({
     fontSize: fontSize.sm,
     color: colors.textSecondary,
     marginBottom: spacing.lg,
+    fontFamily: fonts.body,
   },
   options: {
     gap: spacing.sm,
@@ -172,11 +175,12 @@ const styles = StyleSheet.create({
   optionLabel: {
     fontSize: fontSize.md,
     color: colors.textPrimary,
-    fontWeight: "600",
+    fontFamily: fonts.bodySemi,
   },
   optionDescription: {
     fontSize: fontSize.sm,
     color: colors.textSecondary,
     marginTop: spacing.xs / 2,
+    fontFamily: fonts.body,
   },
 });

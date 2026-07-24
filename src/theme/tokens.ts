@@ -67,13 +67,15 @@ export const radius = {
 
 // ── Tipografía ────────────────────────────────────────────────────
 // Familias de la marca: Montserrat (títulos) + Inter (cuerpo).
-// NOTA: las fuentes reales todavía no están cargadas — eso es un paso
-// aparte (expo-font / @expo-google-fonts). Por ahora `undefined` usa la
-// fuente del sistema; cuando carguemos las fuentes, se completan acá y
-// se actualiza toda la app de una.
+// Los nombres son exactamente los que exporta @expo-google-fonts y se
+// cargan en app/_layout.tsx. En React Native, con estas fuentes de peso
+// nombrado se usa `fontFamily` (no `fontWeight`) para elegir el grosor.
 export const fonts = {
-  heading: undefined as string | undefined, // → "Montserrat_700Bold"
-  body: undefined as string | undefined, // → "Inter_400Regular"
+  heading: "Montserrat_700Bold", // títulos fuertes
+  headingSemi: "Montserrat_600SemiBold", // títulos medios / secciones
+  body: "Inter_400Regular", // cuerpo
+  bodyMedium: "Inter_500Medium", // énfasis suave
+  bodySemi: "Inter_600SemiBold", // botones, labels
 } as const;
 
 export const fontSize = {
