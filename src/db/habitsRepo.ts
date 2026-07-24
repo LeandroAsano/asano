@@ -1,4 +1,5 @@
 import { and, asc, eq } from "drizzle-orm";
+import type { CategoryKey } from "../features/habits/categories";
 import { db } from "./client";
 import { habitLogs, habits } from "./schema";
 
@@ -11,7 +12,22 @@ import { habitLogs, habits } from "./schema";
 export type HabitForToday = {
   id: string;
   name: string;
+  category: string;
   doneToday: boolean;
+};
+
+// Datos para crear un hábito (el "Sistema" del Ciclo ASA).
+export type CreateHabitInput = {
+  name: string;
+  category: CategoryKey;
+  minimalAction?: string;
+  difficulty: "facil" | "media" | "dificil";
+  frequencyType: "daily" | "specific_days" | "times_per_week";
+  daysOfWeek?: number[]; // solo si specific_days
+  timesPerWeek?: number; // solo si times_per_week
+  anchorType: "time" | "trigger";
+  timeOfDay?: string; // "HH:MM", solo si anchorType = time
+  triggerText?: string; // solo si anchorType = trigger
 };
 
 // ── Helpers ───────────────────────────────────────────────────────
@@ -56,16 +72,29 @@ export async function listHabitsForToday(): Promise<HabitForToday[]> {
   return activeHabits.map((h) => ({
     id: h.id,
     name: h.name,
+    category: h.category,
     doneToday: doneHabitIds.has(h.id),
   }));
 }
 
 // ── Escrituras ────────────────────────────────────────────────────
 
-// Crea un hábito nuevo. Devuelve su id.
-export async function addHabit(name: string): Promise<string> {
+// Crea un hábito nuevo con todo su Sistema. Devuelve su id.
+export async function createHabit(input: CreateHabitInput): Promise<string> {
   const id = genId();
-  await db.insert(habits).values({ id, name });
+  await db.insert(habits).values({
+    id,
+    name: input.name.trim(),
+    category: input.category,
+    minimalAction: input.minimalAction?.trim() || null,
+    difficulty: input.difficulty,
+    frequencyType: input.frequencyType,
+    daysOfWeek: input.daysOfWeek?.length ? input.daysOfWeek.join(",") : null,
+    timesPerWeek: input.timesPerWeek ?? null,
+    anchorType: input.anchorType,
+    timeOfDay: input.anchorType === "time" ? input.timeOfDay ?? null : null,
+    triggerText: input.anchorType === "trigger" ? input.triggerText?.trim() || null : null,
+  });
   return id;
 }
 

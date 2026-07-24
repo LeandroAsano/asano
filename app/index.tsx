@@ -1,20 +1,17 @@
-import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
-  KeyboardAvoidingView,
-  Platform,
   Pressable,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { HabitItem } from "../src/components/HabitItem";
 import {
-  addHabit,
   deleteHabit,
   listHabitsForToday,
   toggleToday,
@@ -37,22 +34,30 @@ import { colors, fonts, fontSize, radius, spacing } from "../src/theme/tokens";
  */
 export default function HomeScreen() {
   const [items, setItems] = useState<HabitForToday[]>([]);
-  const [newHabitName, setNewHabitName] = useState("");
   const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
     setItems(await listHabitsForToday());
   }, []);
 
+  // Gate de onboarding (una vez, al montar).
   useEffect(() => {
     hasProfile().then((exists) => {
       if (!exists) {
         router.replace("/onboarding");
         return;
       }
-      refresh().then(() => setReady(true));
+      setReady(true);
     });
-  }, [refresh]);
+  }, []);
+
+  // Refrescar la lista cada vez que la pantalla recibe foco (incluye volver
+  // de la pantalla de crear hábito).
+  useFocusEffect(
+    useCallback(() => {
+      if (ready) refresh();
+    }, [ready, refresh])
+  );
 
   if (!ready) {
     return (
@@ -60,14 +65,6 @@ export default function HomeScreen() {
         <ActivityIndicator color={colors.primary} />
       </SafeAreaView>
     );
-  }
-
-  async function onAdd() {
-    const name = newHabitName.trim();
-    if (!name) return;
-    setNewHabitName("");
-    await addHabit(name);
-    await refresh();
   }
 
   async function onToggle(id: string) {
@@ -95,26 +92,17 @@ export default function HomeScreen() {
           />
         )}
         ListEmptyComponent={
-          <Text style={styles.empty}>Todavía no agregaste hábitos.</Text>
+          <Text style={styles.empty}>
+            Todavía no agregaste hábitos.{"\n"}Tocá el botón para crear el primero.
+          </Text>
         }
       />
-      <KeyboardAvoidingView
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        style={styles.inputRow}
-      >
-        <TextInput
-          style={styles.input}
-          placeholder="Nuevo hábito..."
-          placeholderTextColor={colors.textMuted}
-          value={newHabitName}
-          onChangeText={setNewHabitName}
-          onSubmitEditing={onAdd}
-          returnKeyType="done"
-        />
-        <Pressable style={styles.addButton} onPress={onAdd}>
-          <Text style={styles.addButtonText}>Agregar</Text>
+      <View style={styles.footer}>
+        <Pressable style={styles.addButton} onPress={() => router.push("/habit/new")}>
+          <Ionicons name="add" size={20} color={colors.onPrimary} />
+          <Text style={styles.addButtonText}>Nuevo hábito</Text>
         </Pressable>
-      </KeyboardAvoidingView>
+      </View>
     </SafeAreaView>
   );
 }
@@ -143,32 +131,23 @@ const styles = StyleSheet.create({
     marginTop: spacing.xl,
     fontFamily: fonts.body,
   },
-  inputRow: {
-    flexDirection: "row",
-    padding: spacing.sm,
+  footer: {
+    padding: spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
   },
-  input: {
-    flex: 1,
-    backgroundColor: colors.surface,
-    color: colors.textPrimary,
-    borderRadius: radius.md,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm + 2,
-    marginRight: spacing.sm,
-    fontFamily: fonts.body,
-  },
   addButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.xs,
     backgroundColor: colors.primary,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    justifyContent: "center",
+    paddingVertical: spacing.md,
   },
   addButtonText: {
     color: colors.onPrimary,
     fontFamily: fonts.bodySemi,
+    fontSize: fontSize.md,
   },
 });
