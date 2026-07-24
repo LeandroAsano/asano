@@ -1,4 +1,4 @@
-import { sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 /**
  * Schema de la base de datos de ASANO (SQLite vía Drizzle).
@@ -10,13 +10,35 @@ import { sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
  */
 
 // ── Tabla: habits ─────────────────────────────────────────────────
-// Un hábito que la persona quiere sostener.
+// Un hábito que la persona quiere sostener. Incluye su "Sistema" (Ciclo
+// ASA): acción mínima, frecuencia, ancla (horario/disparador) y dificultad.
+// El Sistema va inline en la fila porque es 1:1 con el hábito (más simple
+// que una tabla aparte para el MVP).
 export const habits = sqliteTable("habits", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
-  // "La versión de 2 minutos" del hábito. Opcional por ahora; se vuelve
-  // obligatoria cuando construyamos el flujo de creación real (Ciclo ASA).
+  // Categoría con ícono (salud | movimiento | foco | calma | aprendizaje |
+  // finanzas | dejar). "dejar" = hábito de abstinencia (dejar de fumar, etc.);
+  // por ahora comparte la mecánica; la lógica invertida llega en el check-in.
+  category: text("category").notNull().default("salud"),
+  // "La versión de 2 minutos" del hábito.
   minimalAction: text("minimal_action"),
+  // facil | media | dificil — base para futuras sugerencias de ajuste.
+  difficulty: text("difficulty").notNull().default("media"),
+  // ── Frecuencia ──
+  // daily | specific_days | times_per_week
+  frequencyType: text("frequency_type").notNull().default("daily"),
+  // Si specific_days: días como CSV "1,3,5" (1=lunes … 7=domingo).
+  daysOfWeek: text("days_of_week"),
+  // Si times_per_week: cuántas veces.
+  timesPerWeek: integer("times_per_week"),
+  // ── Ancla ──
+  // time | trigger
+  anchorType: text("anchor_type").notNull().default("time"),
+  // Si anchorType = time: "HH:MM".
+  timeOfDay: text("time_of_day"),
+  // Si anchorType = trigger: "después del café".
+  triggerText: text("trigger_text"),
   // active | paused | archived. Pausar/archivar no borra el historial.
   status: text("status").notNull().default("active"),
   createdAt: text("created_at")

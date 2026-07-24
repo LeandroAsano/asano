@@ -1,26 +1,32 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import { getCategory } from "../features/habits/categories";
 import { colors, fonts, fontSize, radius, spacing } from "../theme/tokens";
 
 type Props = {
-  habit: { id: string; name: string };
+  habit: { id: string; name: string; category: string };
   doneToday: boolean;
   onToggleToday: (id: string) => void;
   onDelete: (id: string) => void;
 };
 
 export function HabitItem({ habit, doneToday, onToggleToday, onDelete }: Props) {
+  const category = getCategory(habit.category);
   return (
     <View style={[styles.row, doneToday && styles.rowDone]}>
+      <View style={styles.iconWrap}>
+        <Ionicons name={category.icon} size={18} color={colors.primary} />
+      </View>
+      <Text style={[styles.name, doneToday && styles.nameDone]}>{habit.name}</Text>
+      <Pressable onPress={() => onDelete(habit.id)} hitSlop={8} style={styles.deleteBtn}>
+        <Text style={styles.delete}>✕</Text>
+      </Pressable>
       <Pressable
         style={[styles.checkbox, doneToday && styles.checkboxDone]}
         onPress={() => onToggleToday(habit.id)}
       >
         {doneToday && <Text style={styles.checkmark}>✓</Text>}
-      </Pressable>
-      <Text style={[styles.name, doneToday && styles.nameDone]}>{habit.name}</Text>
-      <Pressable onPress={() => onDelete(habit.id)} hitSlop={8}>
-        <Text style={styles.delete}>✕</Text>
       </Pressable>
     </View>
   );
@@ -38,15 +44,26 @@ const styles = StyleSheet.create({
   rowDone: {
     backgroundColor: colors.successSurface,
   },
-  checkbox: {
-    width: 24,
-    height: 24,
+  iconWrap: {
+    width: 34,
+    height: 34,
     borderRadius: radius.sm,
+    backgroundColor: colors.background,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: spacing.md - 4,
+  },
+  checkbox: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: 2,
     borderColor: colors.textMuted,
     alignItems: "center",
     justifyContent: "center",
-    marginRight: spacing.md - 4,
+    marginLeft: spacing.sm,
   },
   checkboxDone: {
     backgroundColor: colors.success,
@@ -67,9 +84,11 @@ const styles = StyleSheet.create({
     textDecorationLine: "line-through",
     color: colors.textSecondary,
   },
+  deleteBtn: {
+    paddingHorizontal: spacing.xs,
+  },
   delete: {
     color: colors.textMuted,
-    fontSize: fontSize.md,
-    paddingHorizontal: spacing.xs,
+    fontSize: fontSize.sm,
   },
 });
