@@ -1,5 +1,16 @@
 @AGENTS.md
 
+# ⚠️ Reglas de Git — OBLIGATORIAS, nunca bypassear
+
+Ver [CONTRIBUTING.md](CONTRIBUTING.md) para el detalle. Resumen que se cumple SIEMPRE:
+
+- **Nunca** commitear ni pushear directo a `master`. Todo cambio va en una rama (`feat/`, `fix/`, `docs/`, `chore/`, `refactor/`, `test/`) y se integra a `master` vía Pull Request.
+- **Conventional Commits**: `tipo(alcance): resumen` en imperativo, español, ≤72 chars, sin punto final.
+- Un commit = un cambio lógico. `npx tsc --noEmit` debe pasar antes de mergear. `master` siempre queda funcional.
+- Borrar la rama tras mergear. Nunca `--force` a `master`.
+
+Estas reglas no se saltean por ningún motivo (ni cambios triviales ni apuro).
+
 # ASANO — Contexto de producto y marca
 
 Fuente: `F:\leandro\Asano\Marca\ASANO_Base_de_Marca.md` y `ASANO_Estrategia_Modelo_de_Negocio.md`.
