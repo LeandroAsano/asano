@@ -1,7 +1,18 @@
 import { and, asc, eq } from "drizzle-orm";
+import {
+  computeAdjustmentChange,
+  proposeAdjustment,
+} from "../features/habits/adjustments";
 import type { CategoryKey } from "../features/habits/categories";
 import { db } from "./client";
-import { habitLogs, habits } from "./schema";
+import {
+  adjustments,
+  habitLogs,
+  habits,
+  type AdjustmentType,
+  type HabitLogStatus,
+  type MissReason,
+} from "./schema";
 
 /**
  * Repositorio de hábitos: la única puerta entre la app y la base de datos.
@@ -13,7 +24,17 @@ export type HabitForToday = {
   id: string;
   name: string;
   category: string;
-  doneToday: boolean;
+  minimalAction: string | null;
+  todayStatus: HabitLogStatus | null;
+  doneToday: boolean; // completed o minimal
+};
+
+// Ajuste propuesto por ASA para mostrar en el check-in.
+export type ProposedAdjustment = {
+  adjustmentId: string;
+  type: AdjustmentType;
+  change: { difficulty?: string; timeOfDay?: string };
+  habit: { anchorType: string; difficulty: string; timeOfDay: string | null };
 };
 
 // Datos para crear un hábito (el "Sistema" del Ciclo ASA).
@@ -64,17 +85,19 @@ export async function listHabitsForToday(): Promise<HabitForToday[]> {
     .from(habitLogs)
     .where(eq(habitLogs.date, today));
 
-  // Un hábito cuenta como "hecho hoy" si tiene un log de hoy que no sea "missed".
-  const doneHabitIds = new Set(
-    todayLogs.filter((log) => log.status !== "missed").map((log) => log.habitId)
-  );
+  const statusByHabit = new Map(todayLogs.map((log) => [log.habitId, log.status]));
 
-  return activeHabits.map((h) => ({
-    id: h.id,
-    name: h.name,
-    category: h.category,
-    doneToday: doneHabitIds.has(h.id),
-  }));
+  return activeHabits.map((h) => {
+    const todayStatus = (statusByHabit.get(h.id) as HabitLogStatus | undefined) ?? null;
+    return {
+      id: h.id,
+      name: h.name,
+      category: h.category,
+      minimalAction: h.minimalAction,
+      todayStatus,
+      doneToday: todayStatus === "completed" || todayStatus === "minimal",
+    };
+  });
 }
 
 // ── Escrituras ────────────────────────────────────────────────────
@@ -98,29 +121,92 @@ export async function createHabit(input: CreateHabitInput): Promise<string> {
   return id;
 }
 
-// Marca / desmarca el cumplimiento de hoy.
-// Si ya había un registro hoy, lo quita; si no, inserta uno "completed".
-// (El estado "minimal"/"missed" del check-in completo llega en un bloque futuro.)
-export async function toggleToday(habitId: string): Promise<void> {
+// Registra el estado de hoy (completed | minimal | missed). Un solo registro
+// por hábito por día: si ya existía, lo actualiza (upsert). Devuelve el id
+// del log (necesario para vincular un ajuste a la falla que lo originó).
+export async function setTodayStatus(
+  habitId: string,
+  status: HabitLogStatus,
+  reason?: MissReason
+): Promise<string> {
   const today = todayKey();
-
   const existing = await db
     .select()
     .from(habitLogs)
     .where(and(eq(habitLogs.habitId, habitId), eq(habitLogs.date, today)));
 
   if (existing.length > 0) {
+    const id = existing[0].id;
     await db
-      .delete(habitLogs)
-      .where(and(eq(habitLogs.habitId, habitId), eq(habitLogs.date, today)));
-  } else {
-    await db.insert(habitLogs).values({
-      id: genId(),
-      habitId,
-      date: today,
-      status: "completed",
-    });
+      .update(habitLogs)
+      .set({ status, reason: reason ?? null })
+      .where(eq(habitLogs.id, id));
+    return id;
   }
+  const id = genId();
+  await db.insert(habitLogs).values({
+    id,
+    habitId,
+    date: today,
+    status,
+    reason: reason ?? null,
+  });
+  return id;
+}
+
+// Limpia el registro de hoy (volver a "sin marcar").
+export async function clearTodayStatus(habitId: string): Promise<void> {
+  const today = todayKey();
+  await db
+    .delete(habitLogs)
+    .where(and(eq(habitLogs.habitId, habitId), eq(habitLogs.date, today)));
+}
+
+// A partir de una falla, ASA propone un ajuste concreto. Guarda la sugerencia
+// (applied=false) y devuelve qué cambiaría, para mostrarlo en el check-in.
+export async function proposeAdjustmentForHabit(
+  habitId: string,
+  reason: MissReason,
+  sourceLogId?: string
+): Promise<ProposedAdjustment | null> {
+  const rows = await db.select().from(habits).where(eq(habits.id, habitId));
+  const h = rows[0];
+  if (!h) return null;
+
+  const type = proposeAdjustment(h, reason);
+  const change = computeAdjustmentChange(h, type);
+  const adjustmentId = genId();
+  await db.insert(adjustments).values({
+    id: adjustmentId,
+    habitId,
+    sourceLogId: sourceLogId ?? null,
+    reason,
+    type,
+    applied: false,
+  });
+
+  return {
+    adjustmentId,
+    type,
+    change,
+    habit: { anchorType: h.anchorType, difficulty: h.difficulty, timeOfDay: h.timeOfDay },
+  };
+}
+
+// Aplica un ajuste: edita el hábito con el cambio y marca la sugerencia
+// como aplicada.
+export async function applyAdjustment(
+  adjustmentId: string,
+  habitId: string,
+  change: { difficulty?: string; timeOfDay?: string }
+): Promise<void> {
+  if (change.difficulty || change.timeOfDay) {
+    await db.update(habits).set(change).where(eq(habits.id, habitId));
+  }
+  await db
+    .update(adjustments)
+    .set({ applied: true, appliedAt: new Date().toISOString() })
+    .where(eq(adjustments.id, adjustmentId));
 }
 
 // Borra un hábito y todos sus registros.

@@ -10,14 +10,14 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { CheckinSheet } from "../src/components/CheckinSheet";
 import { HabitItem } from "../src/components/HabitItem";
 import {
   deleteHabit,
   listHabitsForToday,
-  toggleToday,
   type HabitForToday,
 } from "../src/db/habitsRepo";
-import { hasProfile } from "../src/db/profileRepo";
+import { getProfile, hasProfile } from "../src/db/profileRepo";
 import { colors, fonts, fontSize, radius, spacing } from "../src/theme/tokens";
 
 /**
@@ -35,18 +35,21 @@ import { colors, fonts, fontSize, radius, spacing } from "../src/theme/tokens";
 export default function HomeScreen() {
   const [items, setItems] = useState<HabitForToday[]>([]);
   const [ready, setReady] = useState(false);
+  const [asaStyle, setAsaStyle] = useState<string | null>(null);
+  const [selected, setSelected] = useState<HabitForToday | null>(null);
 
   const refresh = useCallback(async () => {
     setItems(await listHabitsForToday());
   }, []);
 
-  // Gate de onboarding (una vez, al montar).
+  // Gate de onboarding + estilo de ASA (una vez, al montar).
   useEffect(() => {
     hasProfile().then((exists) => {
       if (!exists) {
         router.replace("/onboarding");
         return;
       }
+      getProfile().then((p) => setAsaStyle(p?.accompanimentStyle ?? null));
       setReady(true);
     });
   }, []);
@@ -67,9 +70,8 @@ export default function HomeScreen() {
     );
   }
 
-  async function onToggle(id: string) {
-    await toggleToday(id);
-    await refresh();
+  function openCheckin(id: string) {
+    setSelected(items.find((h) => h.id === id) ?? null);
   }
 
   async function onDelete(id: string) {
@@ -84,18 +86,21 @@ export default function HomeScreen() {
         data={items}
         keyExtractor={(h) => h.id}
         renderItem={({ item }) => (
-          <HabitItem
-            habit={item}
-            doneToday={item.doneToday}
-            onToggleToday={onToggle}
-            onDelete={onDelete}
-          />
+          <HabitItem habit={item} onPress={openCheckin} onDelete={onDelete} />
         )}
         ListEmptyComponent={
           <Text style={styles.empty}>
             Todavía no agregaste hábitos.{"\n"}Tocá el botón para crear el primero.
           </Text>
         }
+      />
+      <CheckinSheet
+        habit={selected}
+        style={asaStyle}
+        onClose={() => {
+          setSelected(null);
+          refresh();
+        }}
       />
       <View style={styles.footer}>
         <Pressable style={styles.addButton} onPress={() => router.push("/habit/new")}>

@@ -1,34 +1,47 @@
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
+import type { HabitLogStatus } from "../db/schema";
 import { getCategory } from "../features/habits/categories";
 import { colors, fonts, fontSize, radius, spacing } from "../theme/tokens";
 
 type Props = {
-  habit: { id: string; name: string; category: string };
-  doneToday: boolean;
-  onToggleToday: (id: string) => void;
+  habit: { id: string; name: string; category: string; todayStatus: HabitLogStatus | null };
+  onPress: (id: string) => void; // abre el check-in
   onDelete: (id: string) => void;
 };
 
-export function HabitItem({ habit, doneToday, onToggleToday, onDelete }: Props) {
+// Indicador de estado del día a la derecha de cada hábito.
+function StatusIcon({ status }: { status: HabitLogStatus | null }) {
+  if (status === "completed") {
+    return <Ionicons name="checkmark-circle" size={26} color={colors.success} />;
+  }
+  if (status === "minimal") {
+    return <Ionicons name="contrast" size={26} color={colors.success} />;
+  }
+  if (status === "missed") {
+    return <Ionicons name="close-circle" size={26} color={colors.textMuted} />;
+  }
+  return <Ionicons name="ellipse-outline" size={26} color={colors.textMuted} />;
+}
+
+export function HabitItem({ habit, onPress, onDelete }: Props) {
   const category = getCategory(habit.category);
+  const done = habit.todayStatus === "completed" || habit.todayStatus === "minimal";
   return (
-    <View style={[styles.row, doneToday && styles.rowDone]}>
+    <Pressable
+      style={[styles.row, done && styles.rowDone]}
+      onPress={() => onPress(habit.id)}
+    >
       <View style={styles.iconWrap}>
         <Ionicons name={category.icon} size={18} color={colors.primary} />
       </View>
-      <Text style={[styles.name, doneToday && styles.nameDone]}>{habit.name}</Text>
+      <Text style={[styles.name, done && styles.nameDone]}>{habit.name}</Text>
       <Pressable onPress={() => onDelete(habit.id)} hitSlop={8} style={styles.deleteBtn}>
         <Text style={styles.delete}>✕</Text>
       </Pressable>
-      <Pressable
-        style={[styles.checkbox, doneToday && styles.checkboxDone]}
-        onPress={() => onToggleToday(habit.id)}
-      >
-        {doneToday && <Text style={styles.checkmark}>✓</Text>}
-      </Pressable>
-    </View>
+      <StatusIcon status={habit.todayStatus} />
+    </Pressable>
   );
 }
 
@@ -55,25 +68,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginRight: spacing.md - 4,
   },
-  checkbox: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    borderWidth: 2,
-    borderColor: colors.textMuted,
-    alignItems: "center",
-    justifyContent: "center",
-    marginLeft: spacing.sm,
-  },
-  checkboxDone: {
-    backgroundColor: colors.success,
-    borderColor: colors.success,
-  },
-  checkmark: {
-    color: colors.onPrimary,
-    fontSize: fontSize.sm,
-    fontWeight: "bold",
-  },
   name: {
     flex: 1,
     fontSize: fontSize.md,
@@ -81,11 +75,10 @@ const styles = StyleSheet.create({
     fontFamily: fonts.body,
   },
   nameDone: {
-    textDecorationLine: "line-through",
     color: colors.textSecondary,
   },
   deleteBtn: {
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: spacing.sm,
   },
   delete: {
     color: colors.textMuted,
