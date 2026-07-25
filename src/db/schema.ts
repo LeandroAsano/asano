@@ -61,6 +61,11 @@ export const habitLogs = sqliteTable(
     // completed | minimal | missed. `minimal` (acción mínima) cuenta para
     // la consistencia — es parte del principio anti-culpa de ASANO.
     status: text("status").notNull(),
+    // Si status = missed: por qué (tiempo | olvido | energia | momento |
+    // dificultad | otro). Alimenta la sugerencia de ajuste de ASA.
+    reason: text("reason"),
+    // Nota opcional de la persona.
+    note: text("note"),
     createdAt: text("created_at")
       .notNull()
       .$defaultFn(() => new Date().toISOString()),
@@ -68,6 +73,29 @@ export const habitLogs = sqliteTable(
   // Un solo registro por hábito por día: evita duplicados.
   (t) => [uniqueIndex("habit_date_unique").on(t.habitId, t.date)]
 );
+
+// ── Tabla: adjustments ────────────────────────────────────────────
+// Un ajuste del "Sistema" del hábito, sugerido por ASA a partir de una
+// falla y (si la persona lo acepta) aplicado. Es el historial que muestra
+// que el sistema mejora — el diferenciador de ASANO (doc 03 ADJUSTMENT).
+export const adjustments = sqliteTable("adjustments", {
+  id: text("id").primaryKey(),
+  habitId: text("habit_id")
+    .notNull()
+    .references(() => habits.id, { onDelete: "cascade" }),
+  // El log de falla que lo originó (opcional).
+  sourceLogId: text("source_log_id"),
+  // El motivo de la falla que disparó la sugerencia.
+  reason: text("reason"),
+  // lower_difficulty | move_time | focus_minimal
+  type: text("type").notNull(),
+  // 1 si la persona lo aplicó.
+  applied: integer("applied", { mode: "boolean" }).notNull().default(false),
+  suggestedAt: text("suggested_at")
+    .notNull()
+    .$defaultFn(() => new Date().toISOString()),
+  appliedAt: text("applied_at"),
+});
 
 // ── Tabla: profile ────────────────────────────────────────────────
 // El contexto capturado en el onboarding (doc 02 §3 / doc 03 PROFILE).
@@ -98,3 +126,6 @@ export type HabitLogStatus = "completed" | "minimal" | "missed";
 export type Profile = typeof profile.$inferSelect;
 export type NewProfile = typeof profile.$inferInsert;
 export type AccompanimentStyle = "sereno" | "directo" | "analitico" | "flexible";
+export type Adjustment = typeof adjustments.$inferSelect;
+export type AdjustmentType = "lower_difficulty" | "move_time" | "focus_minimal";
+export type MissReason = "tiempo" | "olvido" | "energia" | "momento" | "dificultad" | "otro";
