@@ -155,10 +155,12 @@ export default function NewHabitScreen() {
 
         {/* Acción mínima */}
         <Text style={styles.label}>Acción mínima</Text>
-        <Text style={styles.hint}>La versión de 2 minutos, para los días difíciles.</Text>
+        <Text style={styles.hint}>
+          Lo más chico que cuenta como hecho. Tan chico que no puedas decir que no.
+        </Text>
         <TextInput
           style={styles.input}
-          placeholder="Ej: Leer 2 páginas"
+          placeholder="Ej: Una página"
           placeholderTextColor={colors.textMuted}
           value={minimalAction}
           onChangeText={setMinimalAction}

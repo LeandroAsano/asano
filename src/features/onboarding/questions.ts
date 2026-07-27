@@ -1,7 +1,14 @@
 /**
  * Contenido del onboarding de ASANO: las 6 preguntas y sus opciones.
  *
- * Esta es la fuente de verdad del onboarding (decisión B3 del doc 07).
+ * Público: mentes que funcionan distinto (foco TDAH adulto) — ver doc 10
+ * en F:\leandro\Asano\Producto. Las opciones están redactadas para que la
+ * persona se sienta reconocida ("se me fue el tiempo", "no pude arrancar")
+ * en vez de juzgada.
+ *
+ * ⚠️ Sin claims médicos: no se pregunta por diagnóstico (sería dato de salud
+ * sensible) ni se habla de síntomas. Solo experiencias cotidianas.
+ *
  * Cada respuesta se guarda en la tabla `profile` con la `key` indicada.
  * La pregunta 6 (estilo de acompañamiento) define el tono de ASA en toda la app.
  */
@@ -32,41 +39,44 @@ export const ONBOARDING_QUESTIONS: Question[] = [
   {
     key: "goal",
     title: "¿Qué querés mejorar?",
-    subtitle: "Elegí lo que más te importa ahora.",
+    subtitle: "Elegí lo que más te importa ahora. Después podés cambiarlo.",
     options: [
       { value: "salud", label: "Salud y energía" },
-      { value: "foco", label: "Foco y productividad" },
-      { value: "calma", label: "Calma y bienestar" },
-      { value: "aprender", label: "Aprender algo nuevo" },
-      { value: "finanzas", label: "Finanzas personales" },
+      { value: "foco", label: "Foco y organización" },
+      { value: "calma", label: "Calma y descanso" },
+      { value: "aprender", label: "Aprender algo" },
+      { value: "finanzas", label: "Orden con la plata" },
+      { value: "dejar", label: "Dejar algo que me hace mal" },
     ],
   },
   {
     key: "strugglingHabit",
-    title: "¿Qué hábito te cuesta sostener?",
-    subtitle: "El que siempre empezás y dejás.",
+    title: "¿Qué te cuesta sostener?",
+    subtitle: "Eso que empezás mil veces y se te cae.",
     options: [
-      { value: "ejercicio", label: "Hacer ejercicio" },
+      { value: "movimiento", label: "Moverme" },
       { value: "leer", label: "Leer" },
-      { value: "meditar", label: "Meditar" },
+      { value: "dormir", label: "Dormir a horario" },
       { value: "agua", label: "Tomar agua" },
-      { value: "dormir", label: "Dormir mejor" },
-      { value: "estudiar", label: "Estudiar" },
+      { value: "estudiar", label: "Estudiar o trabajar enfocado" },
+      { value: "orden", label: "Mantener el orden" },
     ],
   },
   {
     key: "timeBudget",
     title: "¿Cuánto tiempo real tenés?",
-    subtitle: "Seamos honestos, no ideales.",
+    subtitle: "Real, no ideal. Esto define tu acción mínima.",
     options: [
-      { value: "poco", label: "Poco", description: "5 a 10 minutos" },
-      { value: "medio", label: "Algo", description: "15 a 30 minutos" },
-      { value: "mucho", label: "Bastante", description: "Más de 30 minutos" },
+      { value: "poco", label: "Muy poco", description: "2 a 5 minutos" },
+      { value: "medio", label: "Algo", description: "10 a 20 minutos" },
+      { value: "mucho", label: "Bastante", description: "Más de 20 minutos" },
+      { value: "variable", label: "Depende del día", description: "Varía mucho" },
     ],
   },
   {
     key: "preferredMoment",
-    title: "¿En qué momento del día sería más fácil?",
+    title: "¿Cuándo tenés más chances?",
+    subtitle: "El momento del día en que sos más vos.",
     options: [
       { value: "manana", label: "A la mañana" },
       { value: "mediodia", label: "Al mediodía" },
@@ -76,30 +86,31 @@ export const ONBOARDING_QUESTIONS: Question[] = [
   },
   {
     key: "commonBlocker",
-    title: "¿Qué suele impedirte cumplir?",
-    subtitle: "Esto nos ayuda a ajustar el sistema, no a juzgarte.",
+    title: "¿Qué suele frenarte?",
+    subtitle: "Sirve para ajustar el sistema, no para juzgarte.",
     options: [
-      { value: "tiempo", label: "Falta de tiempo" },
-      { value: "olvido", label: "Me olvido" },
-      { value: "energia", label: "Sin energía" },
-      { value: "momento", label: "El momento no funciona" },
-      { value: "dificultad", label: "Es demasiado difícil" },
+      { value: "arrancar", label: "No logro arrancar" },
+      { value: "olvido", label: "Se me pasa" },
+      { value: "tiempo", label: "Se me va el tiempo" },
+      { value: "energia", label: "No me da la energía" },
+      { value: "distraccion", label: "Me distraigo con otra cosa" },
+      { value: "dificultad", label: "Me lo pongo muy difícil" },
     ],
   },
   {
     key: "accompanimentStyle",
     title: "¿Cómo preferís que te acompañe ASA?",
-    subtitle: "Podés cambiarlo después.",
+    subtitle: "Podés cambiarlo cuando quieras.",
     options: [
       {
         value: "sereno",
         label: "Sereno",
-        description: "Mensajes suaves y reflexivos.",
+        description: "Mensajes suaves y sin apuro.",
       },
       {
         value: "directo",
         label: "Directo",
-        description: "Breve y concreto, al grano.",
+        description: "Breve y al grano, sin vueltas.",
       },
       {
         value: "analitico",

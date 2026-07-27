@@ -10,13 +10,16 @@ import type { AdjustmentType, MissReason } from "../../db/schema";
  */
 
 // Motivos de falla (para el selector del check-in).
+// Redactados en primera persona y sin juicio: describen la experiencia real
+// de una mente que funciona distinto, no un fracaso de voluntad.
 export const MISS_REASONS: { value: MissReason; label: string }[] = [
-  { value: "tiempo", label: "Falta de tiempo" },
-  { value: "olvido", label: "Me olvidé" },
-  { value: "energia", label: "Sin energía" },
-  { value: "momento", label: "El momento no funcionó" },
-  { value: "dificultad", label: "Fue demasiado difícil" },
-  { value: "otro", label: "Otro" },
+  { value: "arrancar", label: "No pude arrancar" },
+  { value: "olvido", label: "Se me pasó" },
+  { value: "tiempo", label: "Se me fue el tiempo" },
+  { value: "energia", label: "No me dio la energía" },
+  { value: "distraccion", label: "Me distraje con otra cosa" },
+  { value: "dificultad", label: "Me lo puse muy difícil" },
+  { value: "otro", label: "Otra cosa" },
 ];
 
 const DIFFICULTY_STEPS = ["dificil", "media", "facil"] as const;
@@ -36,11 +39,17 @@ export function proposeAdjustment(habit: HabitLike, reason: MissReason): Adjustm
   switch (reason) {
     case "dificultad":
       return "lower_difficulty";
+    // Parálisis de inicio: achicar el punto de entrada hasta que arrancar
+    // sea casi trivial.
+    case "arrancar":
+      return "focus_minimal";
     case "tiempo":
       return "focus_minimal";
     case "energia":
       return timeAnchored ? "move_time" : "lower_difficulty";
-    case "momento":
+    // Distracción y olvido: probar otro momento del día (hasta que existan
+    // recordatorios reales, mover el horario es el ajuste más honesto).
+    case "distraccion":
     case "olvido":
       return timeAnchored ? "move_time" : "focus_minimal";
     default:

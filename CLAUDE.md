@@ -13,16 +13,20 @@ Estas reglas no se saltean por ningún motivo (ni cambios triviales ni apuro).
 
 # ASANO — Contexto de producto y marca
 
-Fuente: `F:\leandro\Asano\Marca\ASANO_Base_de_Marca.md` y `ASANO_Estrategia_Modelo_de_Negocio.md`.
+Fuente: `F:\leandro\Asano\Producto\10_Reposicionamiento.md` (⭐ manda sobre lo demás), más `F:\leandro\Asano\Marca\`.
 
 ## Qué es ASANO
 
-**ASANO: Hábitos con criterio** — app de hábitos que no se limita a registrar cumplimiento. Ayuda a entender *por qué* una persona abandona un hábito y ajusta el sistema alrededor de él (entorno, dificultad, horario, frecuencia, acción mínima), en vez de responsabilizar a la persona por "fallar".
+**ASANO: Hábitos para mentes que funcionan distinto** — app de hábitos que no se limita a registrar cumplimiento. Ayuda a entender *por qué* una persona abandona un hábito y ajusta el sistema alrededor de él (dificultad, horario, frecuencia, acción mínima), en vez de responsabilizar a la persona por "fallar".
 
-Promesa de marca: *"Pequeños hábitos. Mejores decisiones."*
-Posicionamiento: *"Aprende a pensar mejor."*
+Promesa: *"El hábito falló, no vos."*
 
-Evitar en tono/producto: productividad tóxica, lenguaje de gurú, culpa, rachas rígidas, gamificación agresiva, rankings públicos, estética de lujo.
+**Público (reposicionamiento 2026-07-26):** adultos con TDAH diagnosticado o autopercibido, y quien se identifique con "empiezo todo y no sostengo nada". Producto inclusivo, comunicación específica. Reemplaza el "público general" previo y el *female-first* original.
+
+> ⚠️ **REGLA NO NEGOCIABLE — sin claims médicos.** ASANO es una **herramienta de organización personal**, nunca un producto médico. Ningún texto (app, store listing, contenido) puede afirmar que trata, mejora o maneja el TDAH o cualquier síntoma, prometer resultados de salud, o sugerir que reemplaza terapia/medicación. No se pide ni almacena diagnóstico. Se habla de *experiencias* (parálisis de inicio, energía variable, se va el tiempo), no de síntomas. Detalle en el doc 10 §3.
+
+Tono: **neuroafirmativo** — el cerebro no está roto, el sistema se adapta a la persona.
+Evitar: productividad tóxica, lenguaje de gurú, culpa, rachas rígidas, gamificación agresiva, rankings públicos, estética de lujo.
 
 ## Personaje: ASA
 
@@ -42,9 +46,13 @@ Ejemplos de tono de mensajes de ASA:
 
 (A nivel de marca más amplio existe también el "Método ASANO": Aprender → Sistematizar → Actuar → Nutrir → Optimizar — contexto de la marca paraguas, no necesariamente 1:1 con las pantallas de la app.)
 
-## Público objetivo
+## Público objetivo (detalle)
 
-**Público general** (decisión 2026-07-24, reemplaza el enfoque *female-first* del doc de estrategia original): personas de ~25–40 años con poco tiempo y múltiples responsabilidades, que empiezan rutinas y no logran sostenerlas, se sienten sobrecargadas y rechazan la productividad agresiva. Sin segmentar por género. Usar lenguaje neutro ("la persona", no "la usuaria").
+**Primario:** adultos (~20–45) con TDAH diagnosticado o autopercibido, que arrancan sistemas de organización y no los sostienen, cargan culpa por "fallar" con herramientas hechas para cerebros neurotípicos, rechazan la productividad agresiva y tienen energía/capacidad muy variables entre días.
+
+**Secundario:** cualquiera que se identifique con "empiezo todo y no sostengo nada".
+
+Sin segmentar por género. Usar **lenguaje neutro** ("la persona", no "la usuaria").
 
 ## Rachas: no rígidas
 
