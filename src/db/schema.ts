@@ -128,4 +128,12 @@ export type NewProfile = typeof profile.$inferInsert;
 export type AccompanimentStyle = "sereno" | "directo" | "analitico" | "flexible";
 export type Adjustment = typeof adjustments.$inferSelect;
 export type AdjustmentType = "lower_difficulty" | "move_time" | "focus_minimal";
-export type MissReason = "tiempo" | "olvido" | "energia" | "momento" | "dificultad" | "otro";
+// Motivos redactados desde la experiencia real, no como síntomas (ver doc 10).
+export type MissReason =
+  | "arrancar" // no logré arrancar (parálisis de inicio)
+  | "olvido" // se me pasó
+  | "tiempo" // se me fue el tiempo
+  | "energia" // no me dio la energía
+  | "distraccion" // me distraje con otra cosa
+  | "dificultad" // me lo puse muy difícil
+  | "otro";
